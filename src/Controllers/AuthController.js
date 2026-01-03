@@ -25,9 +25,35 @@ export const register=async(req,res)=>{
       return res.json({success:true,message:"Registration Complete"});
 
    } catch (error) {
-        res.json({success:false,message:error.message})
+       return  res.json({success:false,message:error.message})
     
    }
 
 }
 
+export const Login=async(req,res)=>{
+    try {
+        const{email,password}=req.body;
+    if(!email || !password){
+        return res.json({success:false,message:"Details Missing."});
+    }
+    const user=await userModel.findOne({email});
+    if(!user){
+        return res.json({success:false,message:"User Not Found!!! Please check or FUrther Registration "});
+    }
+    const ismatch=await bcrypt.compare(password,user.password);
+    if(!ismatch){
+        return res.json({success:true,message:"Invalid Password"});
+    }
+    const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn: '7d'});
+        res.cookies('token',token,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==='production',
+            sameSite:none,
+            maxAge:7*24*60*60*100
+        })
+      return res.json({success:true,message:"Login Complete"});
+    } catch (error) {
+        return res.json({success:false,message:error.message})
+    }
+}
