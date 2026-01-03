@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({credentials:true}));
 app.get("/",(req,res)=>{
-    res.send("Hi hello bolo say")
+    res.send("Welcome to Our Website ")
 })
 
 app.listen(port,()=>{
