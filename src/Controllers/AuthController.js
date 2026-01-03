@@ -57,3 +57,17 @@ export const Login=async(req,res)=>{
         return res.json({success:false,message:error.message})
     }
 }
+
+export const logout=async(req,res)=>{
+try {
+    res.clearCookie('token',token,
+        {
+            httpOnly:true,
+            secure: process.env.NODE_ENV==='production',
+            sameSite:process.env.NODE_ENV==='production'?'none':'strict',
+        })
+        return res.json({success:true,message:"Logout"});
+} catch (error) {
+    return res.json({success:true,message:message.error})
+}
+}
