@@ -5,22 +5,22 @@ import jwt from "jsonwebtoken";
 export const register=async(req,res)=>{
     const {name,email,password}=req.body;
     if(!name || !email || !password){
-        return res.json({success:false,message:"Missing Details. Required Field Must be submitted"});
+        return res.status(400).json({success:false,message:"Missing Details. Required Field Must be submitted"});
     }
    try {
         const existing_user=await userModel.findOne({email});
         if(existing_user){
-            return res.json({success:false,message:"User already Exist, Please Login"});
+            return res.status(409).json({success:false,message:"User already Exist, Please Login"});
         }
         const hashpassword=await bcrypt.hash(password,10);
         const user=new userModel({name,email,password:hashpassword});
         await user.save();
         const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn: '7d'});
-        res.cookies('token',token,{
+        res.cookie('token',token,{
             httpOnly:true,
             secure:process.env.NODE_ENV==='production',
-            sameSite:none,
-            maxAge:7*24*60*60*100
+             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge:7*24*60*60*1000,
         })
       return res.json({success:true,message:"Registration Complete"});
 
@@ -35,7 +35,7 @@ export const Login=async(req,res)=>{
     try {
         const{email,password}=req.body;
     if(!email || !password){
-        return res.json({success:false,message:"Details Missing."});
+        return res.status(400).json({success:false,message:"Details Missing."});
     }
     const user=await userModel.findOne({email});
     if(!user){
@@ -43,14 +43,14 @@ export const Login=async(req,res)=>{
     }
     const ismatch=await bcrypt.compare(password,user.password);
     if(!ismatch){
-        return res.json({success:true,message:"Invalid Password"});
+        return res.status(401).json({success:false,message:"Invalid Password"});
     }
     const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn: '7d'});
-        res.cookies('token',token,{
+        res.cookie('token',token,{
             httpOnly:true,
             secure:process.env.NODE_ENV==='production',
-            sameSite:none,
-            maxAge:7*24*60*60*100
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge:7*24*60*60*1000,
         })
       return res.json({success:true,message:"Login Complete"});
     } catch (error) {
@@ -60,14 +60,14 @@ export const Login=async(req,res)=>{
 
 export const logout=async(req,res)=>{
 try {
-    res.clearCookie('token',token,
+    res.clearCookie('token',
         {
             httpOnly:true,
             secure: process.env.NODE_ENV==='production',
-            sameSite:process.env.NODE_ENV==='production'?'none':'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         })
         return res.json({success:true,message:"Logout"});
 } catch (error) {
-    return res.json({success:true,message:message.error})
+    return res.json({success:false,message:error.message})
 }
 }
