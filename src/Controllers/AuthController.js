@@ -22,6 +22,7 @@ export const register=async(req,res)=>{
             sameSite:none,
             maxAge:7*24*60*60*100
         })
+      return res.json({success:true,message:"Registration Complete"});
 
    } catch (error) {
         res.json({success:false,message:error.message})
@@ -29,3 +30,4 @@ export const register=async(req,res)=>{
    }
 
 }
+
