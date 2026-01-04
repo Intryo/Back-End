@@ -4,4 +4,5 @@ const authRoute=express.Router();
 authRoute.post("/register",register);
 authRoute.post("/login",login);
 authRoute.post("/logout",logout);
+authRoute.post("/send-verify-otp",)
 export default authRoute;
