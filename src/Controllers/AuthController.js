@@ -172,13 +172,13 @@ export const sendResetOtp=async(req,res)=>{
         return res.json({success:false,message:"Email is Required"})
     }
     try {
-        const user=await usermodel.findOne({email});
+        const user=await userModel.findOne({email});
         if(!user){
              return res.json({success:false,message:"User Not Found"});
         }
         const otp=String(Math.floor(10000+Math.random()*900000));
-        user.resetOtp=otp;
-        user.resetOtpExpairy=Date.now()+15*60*1000;
+        user.resendOtp=otp;
+        user.resendOtpExpairy=Date.now()+15*60*1000;
         await user.save();
         const mailOption={
         from: process.env.SENDER_EMAIL,
@@ -199,22 +199,22 @@ export const resetpass=async(req,res)=>{
         return res.json({success:false,message:"Missing Details "})
     }
     try {
-        const user=await usermodel.findOne({email});
+        const user=await userModel.findOne({email});
         if(!user){
             return res.json({success:false,message:"User Not Found"})
         }
-        if(user.resetOtp===''||user.resetOtp!==otp){
+        if(user.resendOtp===''||user.resendOtp!==otp){
             return res.json({success:false,message:"otp does not match"})
         }
-        if(user.resetOtp<Date.now()){
+        if(user.resendOtpExpairy<Date.now()){
             return res.json({success:false,message:"Otp Expire"})
         }
         const hashedPassword=await bcrypt.hash(newpassword,10);
         user.password=hashedPassword;
-        user.resetOtp="";
-        user.resetOtpExpairy=0;
+        user.resendOtp="";
+        user.resendOtppExpairy=0;
         await user.save();
-        return res.json({success:false,message:"Password Reset succesfully"});
+        return res.json({success:true,message:"Password Reset succesfully"});
     } catch (error) {
         return res.json({success:false,message:error.message})
     }

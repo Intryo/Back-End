@@ -7,6 +7,7 @@ import authRoute from "./routes/auth.routes.js";
 connectdb();
 const app=express();
 const port= process.env.PORT ||  4000;
+console.log("JWT_SECRET =", process.env.JWT_SECRET);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({credentials:true}));
