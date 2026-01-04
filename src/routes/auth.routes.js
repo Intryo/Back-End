@@ -1,10 +1,11 @@
 import express from "express"
 import {register,login,logout, sendverifyOtp, verifyMail} from "../Controllers/AuthController.js";
-import userAuth from "../../middleware/userAuth.js";
+import userauth from "../middleware/userAuth.js";
+
 const authRoute=express.Router();
 authRoute.post("/register",register);
 authRoute.post("/login",login);
 authRoute.post("/logout",logout);
-authRoute.post("/send-verify-otp",userAuth,sendverifyOtp);
-authRoute.post("/verify-account",userAuth,verifyMail);
+authRoute.post("/send-verify-otp",userauth,sendverifyOtp);
+authRoute.post("/verify-account",userauth,verifyMail);
 export default authRoute;

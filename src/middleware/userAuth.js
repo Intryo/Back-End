@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
-const userAuth=async(req,res,next)=>{
+import jwt from "jsonwebtoken"
+const userauth=async(req,res,next)=>{
     const token=req.cookies;
     if(!token){
         return res.json({success:false,message:"Unauthrized Login"});
@@ -12,9 +12,10 @@ const userAuth=async(req,res,next)=>{
         else{
             return res.send({success:false,message:"Unauthorized Login"});
         }
+        next();
         
     } catch (error) {
         return res.json({success:false,message:error.message})
     }
 }
-export default userAuth;
+export default userauth;
