@@ -10,7 +10,7 @@ const port= process.env.PORT ||  4000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({credentials:true}));
-app.use("/api/auth",authRoute)
+app.use("/api/auth",authRoute);
 app.get("/",(req,res)=>{
     res.send("Welcome to Our Website ")
 })
