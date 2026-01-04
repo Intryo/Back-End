@@ -193,3 +193,29 @@ export const sendResetOtp=async(req,res)=>{
     }
 }
 
+const resetpass=async(req,res)=>{
+    const {email,otp,newpassword}=req.body;
+    if(!email || !otp || !newpassword){
+        return res.json({success:false,message:"Missing Details "})
+    }
+    try {
+        const user=await usermodel.findOne({email});
+        if(!user){
+            return res.json({success:false,message:"User Not Found"})
+        }
+        if(user.resetOtp===''||user.resetOtp!==otp){
+            return res.json({success:false,message:"otp does not match"})
+        }
+        if(user.resetOtp<Date.now()){
+            return res.json({success:false,message:"Otp Expire"})
+        }
+        const hashedPassword=await bcrypt.hash(newpassword,10);
+        user.password=hashedPassword;
+        user.resetOtp="";
+        user.resetOtpExpairy=0;
+        await user.save();
+        return res.json({success:false,message:"Password Reset succesfully"});
+    } catch (error) {
+        return res.json({success:false,message:error.message})
+    }
+}
