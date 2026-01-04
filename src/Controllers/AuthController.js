@@ -28,15 +28,21 @@ export const register=async(req,res)=>{
              to: email,
              subject: "Welcome to Our Community Intryo 🎉",
              text: `Hello ${name},
+Welcome aboard! 👋
+We’re excited to have you join us.
 
-            Welcome aboard! 👋 We’re excited to have you join us.Your account has been successfully created, and you’re now part of a growing community where ideas, intent, and meaningful connections matter. Here’s what you can do next:
-            • Complete your profile
-            • Explore posts and discussions
-            • Share your thoughts or ask for help
-            If you ever need assistance, feel free to reply to this email—we’re always here to help.
-            Thanks for joining us,
-            Warm regards,
-            The Team`, 
+Your account has been successfully created, and you’re now part of a growing community where ideas, intent, and meaningful connections matter.
+
+Here’s what you can do next:
+• Complete your profile
+• Explore posts and discussions
+• Share your thoughts or ask for help
+
+If you ever need assistance, feel free to reply to this email—we’re always here to help.
+
+Thanks for joining us,
+Warm regards,
+The Team`, 
     }
     await transporter.sendMail(mailoption);
     return res.json({success:true,message:"Registration Complete"});
