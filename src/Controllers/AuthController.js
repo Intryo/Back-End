@@ -126,7 +126,35 @@ The Team`
         
     } catch (error) {
         console.log(error);
-        return res.json({success:true,message:"Otp Send Failed"})
+        return res.json({success:false,message:"Otp Send Failed"})
         
+    }
+}
+
+export const verifyMail=async(req,res)=>{
+    const {userId,otp}=req.body;
+        if(!userId || !otp){
+            return res.json({success:false,message:"Missing Details"});
+        }
+    try {
+        const user=await userModel.findById(userId);
+        if(!user){
+            return res.json({success:true,message:"User Not Found "});
+        }
+        if(user.verifyOtp===''||user.verifyOtp!==otp){
+            return res.json({success:true,message:"Wrong Otp"})
+        }
+        if(user.verifyOtpexpairy<Date.now()){
+            return res.json({success:true,message:"Otp Is Expired"});
+        };
+        user.isVerified=true;
+        user.verifyOtp='';
+        user.verifyOtpexpairy=0;
+        await user.save();
+        return res.json({success:true,message:"Otp Verified Succesfully "})
+
+
+    } catch (error) {
+        return res.json({success:false,message:"Email is not Verified"});
     }
 }
