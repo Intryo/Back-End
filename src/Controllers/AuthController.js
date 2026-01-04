@@ -1,7 +1,7 @@
-import userModel from "../Models/UserModel";
+import userModel from "../Models/UserModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import transporter from "../config/nodemailer";
+import transporter from "../config/nodemailer.js";
 
 export const register=async(req,res)=>{
     const {name,email,password}=req.body;
@@ -48,7 +48,7 @@ export const register=async(req,res)=>{
 
 }
 
-export const Login=async(req,res)=>{
+export const login=async(req,res)=>{
     try {
         const{email,password}=req.body;
     if(!email || !password){
