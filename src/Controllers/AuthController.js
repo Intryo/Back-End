@@ -96,7 +96,7 @@ try {
 }
 export const sendverifyOtp=async(req,res)=>{
     try {
-        const {userId}=req.body;
+        const userId=req.user.id;
         const user= await userModel.findById(userId);
         if(user.isVerified){
             return res.json({success:false,message:"User already Verified"});
@@ -132,7 +132,8 @@ The Team`
 }
 
 export const verifyMail=async(req,res)=>{
-    const {userId,otp}=req.body;
+        const userId=req.user.id;
+        const otp=req.body;
         if(!userId || !otp){
             return res.json({success:false,message:"Missing Details"});
         }
