@@ -193,7 +193,7 @@ export const sendResetOtp=async(req,res)=>{
     }
 }
 
-const resetpass=async(req,res)=>{
+export const resetpass=async(req,res)=>{
     const {email,otp,newpassword}=req.body;
     if(!email || !otp || !newpassword){
         return res.json({success:false,message:"Missing Details "})
