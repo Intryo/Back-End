@@ -94,3 +94,39 @@ try {
     return res.json({success:false,message:error.message})
 }
 }
+export const sendverifyOtp=async(req,res)=>{
+    try {
+        const {userId}=req.body;
+        const user= await userModel.findById(userId);
+        if(user.isVerified){
+            return res.json({success:false,message:"User already Verified"});
+        }
+        const otp=String(Math.floor(1000+Math.random()*900000));
+        user.verifyOtp=otp;
+        user.verifyOtpexpairy=Date.now()+24*60*60*60*1000;
+        user.save();
+        const mailoption={
+            from: process.env.SENDER_EMAIL,
+             to: email,
+             subject: "Verify Your Email – OTP Inside 🔐",
+             text:`Hello ${name},
+
+Your OTP for email verification is: ${otp}
+
+This OTP is valid for ${verifyOtpexpairy} minutes.
+Please do not share it with anyone.
+
+If you didn’t request this, please ignore this email.
+
+Regards,
+The Team`
+        }
+        await transporter.sendMail(mailoption);
+        return res.json({success:true,message:"Otp Send Succesfully "});
+        
+    } catch (error) {
+        console.log(error);
+        return res.json({success:true,message:"Otp Send Failed"})
+        
+    }
+}
