@@ -166,3 +166,30 @@ export const isAuthenticated=async(req,res)=>{
         return res.json({success:false,message:error.message})
     }
 }
+export const sendResetOtp=async(req,res)=>{
+    const {email}=req.body;
+    if(!email){
+        return res.json({success:false,message:"Email is Required"})
+    }
+    try {
+        const user=await usermodel.findOne({email});
+        if(!user){
+             return res.json({success:false,message:"User Not Found"});
+        }
+        const otp=String(Math.floor(10000+Math.random()*900000));
+        user.resetOtp=otp;
+        user.resetOtpExpairy=Date.now()+15*60*1000;
+        await user.save();
+        const mailOption={
+        from: process.env.SENDER_EMAIL,
+        to: email,
+        subject: "Password Reset OTP",
+        text: `Your Reset Otp is ${otp}`
+        }
+        await transporter.sendMail(mailOption);
+        return res.json({success:true,message:"OTP Send to your email"})
+    } catch (error) {
+         return res.json({success:false,message:error.message})
+    }
+}
+
