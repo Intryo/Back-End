@@ -1,6 +1,7 @@
 import userModel from "../Models/UserModel";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import transporter from "../config/nodemailer";
 
 export const register=async(req,res)=>{
     const {name,email,password}=req.body;
@@ -22,7 +23,23 @@ export const register=async(req,res)=>{
              sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge:7*24*60*60*1000,
         })
-      return res.json({success:true,message:"Registration Complete"});
+        const mailoption={
+             from: process.env.SENDER_EMAIL,
+             to: email,
+             subject: "Welcome to Our Community Intryo 🎉",
+             text: `Hello ${name},
+
+            Welcome aboard! 👋 We’re excited to have you join us.Your account has been successfully created, and you’re now part of a growing community where ideas, intent, and meaningful connections matter. Here’s what you can do next:
+            • Complete your profile
+            • Explore posts and discussions
+            • Share your thoughts or ask for help
+            If you ever need assistance, feel free to reply to this email—we’re always here to help.
+            Thanks for joining us,
+            Warm regards,
+            The Team`, 
+    }
+    await transporter.sendMail(mailoption);
+    return res.json({success:true,message:"Registration Complete"});
 
    } catch (error) {
        return  res.json({success:false,message:error.message})
