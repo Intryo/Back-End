@@ -14,31 +14,30 @@ export const register=async(req,res)=>{
             return res.status(409).json({success:false,message:"User already Exist, Please Login"});
         }
         const hashpassword=await bcrypt.hash(password,10);
-        const user=new userModel({name,email,password:hashpassword});
+        const user=await userModel.create({name,email,password:hashpassword,isVerified:false});
+        const otp=String(Math.floor(100000+Math.random()*900000));
+        user.verifyOtp=otp;
+        user.verifyOtpExpairy=Date.now()+24*60*60*1000;
         await user.save();
         const mailoption={
              from: process.env.SENDER_EMAIL,
              to: email,
-             subject: "Welcome to Our Community Intryo 🎉",
+             subject: "Verify your Intryo account 🔐",
              text: `Hello ${name},
-Welcome aboard! 👋
-We’re excited to have you join us.
 
-Your account has been successfully created, and you’re now part of a growing community where ideas, intent, and meaningful connections matter.
+Welcome to Intryo 👋
 
-Here’s what you can do next:
-• Complete your profile
-• Explore posts and discussions
-• Share your thoughts or ask for help
+Your One-Time Password (OTP) to verify your email is:
 
-If you ever need assistance, feel free to reply to this email—we’re always here to help.
+👉 ${otp}
 
-Thanks for joining us,
-Warm regards,
-The Team`, 
+This OTP is valid for 10 minutes.
+Please do not share it with anyone.
+
+— Team Intryo`
     }
     await transporter.sendMail(mailoption);
-    return res.status(201).json({success:true,message:"Registration Complete"});
+    return res.status(201).json({success:true,message:" Otp Send to Mail",next:"Verify_OTP"});
 
    } catch (error) {
        return  res.status(500).json({success:false,message:error.message})
