@@ -240,23 +240,22 @@ export const resetpass=async(req,res)=>{
 export const refreshTokenController = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
-  if (!refreshToken) {
-    return res.status(401).json({ success: false, message: "No refresh token" });
-  }
+        if (!refreshToken) {
+            return res.status(401).json({ success: false, message: "No refresh token" });
+         }
 
-  try {
-    const decoded = jwt.verify(refreshToken,process.env.JWT_REFRESH_SECRET);
+         try {
+                 const decoded = jwt.verify(refreshToken,process.env.JWT_REFRESH_SECRET);
+                 const newAccessToken = jwt.sign({ id: decoded.id },process.env.JWT_SECRET,{expiresIn: "15m" });
 
-    const newAccessToken = jwt.sign({ id: decoded.id },process.env.JWT_SECRET,{expiresIn: "15m" });
+            res.cookie("token", newAccessToken, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "lax",
+              maxAge: 15 * 60 * 1000
+            });
 
-    res.cookie("token", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60 * 1000
-    });
-
-    return res.json({ success: true });
+    return res.status(200).json({ success: true });
 
   } catch (error) {
     return res.status(403).json({ success: false, message: "Invalid refresh token" });
