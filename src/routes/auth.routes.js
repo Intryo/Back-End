@@ -6,6 +6,7 @@ const authRoute=express.Router();
 authRoute.post("/register",register);
 authRoute.post("/login",login);
 authRoute.post("/logout",logout);
+authRoute.post("/refresh-token", refreshTokenController);
 authRoute.post("/send-verify-otp",userauth,sendverifyOtp);
 authRoute.post("/verify-account",userauth,verifyMail);
 authRoute.post("/is-auth",userauth,isAuthenticated);
