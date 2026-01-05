@@ -56,6 +56,9 @@ export const login=async(req,res)=>{
     if(!user){
         return res.status(404).json({success:false,message:"User Not Found!!! Please check or FUrther Registration "});
     }
+    if (!user.isVerified) {
+      return res.status(401).json({ success: false, message: "Email not verified" });
+    }
     const ismatch=await bcrypt.compare(password,user.password);
     if(!ismatch){
         return res.status(401).json({success:false,message:"Invalid Password"});
@@ -77,6 +80,18 @@ export const login=async(req,res)=>{
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
+        await transporter.sendMail({
+             from: process.env.SENDER_EMAIL,
+             to: user.email,
+             subject: "Login successful ✅",
+             text: `Hello ${user.name},
+
+You have successfully logged in to your Intryo account.
+
+If this wasn’t you, please reset your password immediately.
+
+— Team Intryo`
+    });
 
       return res.status(200).json({success:true,message:"Login Complete",userId: user._id});
     } catch (error) {
@@ -104,59 +119,58 @@ export const logout = async (req, res) => {
         }
 };
 
-export const sendverifyOtp = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const userId = req.user.id;
+// export const sendverifyOtp = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const userId = req.user.id;
 
-    const user = await userModel.findById(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+//     const user = await userModel.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
 
-    if (user.isVerified) {
-      return res.status(400).json({ success: false, message: "User already verified" });
-    }
+//     if (user.isVerified) {
+//       return res.status(400).json({ success: false, message: "User already verified" });
+//     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const OTP_EXPIRY_MINUTES = 24 * 60;
+//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+//     const OTP_EXPIRY_MINUTES = 24 * 60;
 
-    user.verifyOtp = otp;
-    user.verifyOtpexpairy = Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000;
-    await user.save();
+//     user.verifyOtp = otp;
+//     user.verifyOtpexpairy = Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000;
+//     await user.save();
 
-    const mailoption = {
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: "Verify Your Email – OTP Inside 🔐",
-      text: `Hello,
+//     const mailoption = {
+//       from: process.env.SENDER_EMAIL,
+//       to: email,
+//       subject: "Verify Your Email – OTP Inside 🔐",
+//       text: `Hello,
 
-Your OTP for email verification is: ${otp}
-.
-Please do not share it with anyone.
+// Your OTP for email verification is: ${otp}
+// .
+// Please do not share it with anyone.
 
-Regards,
-The Team`
-    };
+// Regards,
+// The Team`
+//     };
 
-    await transporter.sendMail(mailoption);
+//     await transporter.sendMail(mailoption);
 
-    return res.status(200).json({ success: true, message: "OTP sent successfully" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "OTP send failed" });
-  }
-};
+//     return res.status(200).json({ success: true, message: "OTP sent successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ success: false, message: "OTP send failed" });
+//   }
+// };
 
 
 export const verifyMail=async(req,res)=>{
-     const userId = req.user.id;
-    const{otp}=req.body;
-    if(!userId || !otp){
+    const{email,otp}=req.body;
+    if(!email || !otp){
         return res.status(400).json({success:false,message:"missing details"});
     }
     try {
-        const user=await userModel.findById(userId);
+        const user=await userModel.findOne({email});
         if(!user){
             return res.status(404).json({success:false,message:"No user Found "});
         }
@@ -170,7 +184,7 @@ export const verifyMail=async(req,res)=>{
         user.verifyOtp='';
         user.verifyOtpExpairy=0;
         await user.save();
-        return res.status(200).json({success:true,message:"verified succesfully"});
+        return res.status(200).json({success:true,message:"Email verified succesfully"});
     } catch (error) {
          return res.status(500).json({success:false,message:error.message})
     }
