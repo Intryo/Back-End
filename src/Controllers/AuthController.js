@@ -156,7 +156,7 @@ export const verifyMail=async(req,res)=>{
         if(user.verifyOtpExpairy<Date.now()){
              return res.json({success:false,message:"otp expire"});
         }
-        user.isverified=true;
+        user.isVerified=true;
         user.verifyOtp='';
         user.verifyOtpExpairy=0;
         await user.save();
