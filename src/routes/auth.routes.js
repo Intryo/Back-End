@@ -1,5 +1,5 @@
 import express from "express"
-import {register,login,logout, sendverifyOtp, verifyMail, isAuthenticated, sendResetOtp, resetpass} from "../Controllers/AuthController.js";
+import {register,login,logout, sendverifyOtp, verifyMail, isAuthenticated, sendResetOtp, resetpass, refreshTokenController} from "../Controllers/AuthController.js";
 import userauth from "../middleware/userAuth.js";
 
 const authRoute=express.Router();

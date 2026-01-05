@@ -16,13 +16,6 @@ export const register=async(req,res)=>{
         const hashpassword=await bcrypt.hash(password,10);
         const user=new userModel({name,email,password:hashpassword});
         await user.save();
-        const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn: '7d'});
-        res.cookie('token',token,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV==='production',
-             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge:7*24*60*60*1000,
-        })
         const mailoption={
              from: process.env.SENDER_EMAIL,
              to: email,
@@ -91,20 +84,27 @@ export const login=async(req,res)=>{
         return res.status(500).json({success:false,message:error.message})
     }
 }
+export const logout = async (req, res) => {
+        try {
+         const cookieOptions = {
+             httpOnly: true,
+             secure: process.env.NODE_ENV === "production",
+             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
+        };
 
-export const logout=async(req,res)=>{
-try {
-    res.clearCookie('token',
-        {
-            httpOnly:true,
-            secure: process.env.NODE_ENV==='production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        })
-        return res.status(200).json({success:true,message:"Logout"});
-} catch (error) {
-    return res.status(500).json({success:false,message:error.message})
-}
-}
+            res.clearCookie("token", cookieOptions);
+            res.clearCookie("refreshToken", cookieOptions);
+
+            return res.status(200).json({success: true,message: "Logout successful",});
+             } 
+        catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: error.message,
+          });
+        }
+};
+
 export const sendverifyOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -237,3 +237,28 @@ export const resetpass=async(req,res)=>{
         return res.status(500).json({success:false,message:error.message})
     }
 }
+export const refreshTokenController = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({ success: false, message: "No refresh token" });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken,process.env.JWT_REFRESH_SECRET);
+
+    const newAccessToken = jwt.sign({ id: decoded.id },process.env.JWT_SECRET,{expiresIn: "15m" });
+
+    res.cookie("token", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    return res.json({ success: true });
+
+  } catch (error) {
+    return res.status(403).json({ success: false, message: "Invalid refresh token" });
+  }
+};
