@@ -8,6 +8,15 @@ const UserSchema=new mongoose.Schema({
     isVerified:{type:Boolean,default:false},
     resendOtp:{type:String,default:''},
     resendOtpExpairy:{type:Number,default:0},
-})
+    username: {type: String,unique: true,sparse: true,},
+    bio: {type: String,maxlength: 160,default: ""},
+    age: { type: Number,min: 13},
+    gender: {type: String,enum: ["male", "female", "other"]},
+    avatar: {type: String,default: "" },
+    friendsCount: {type: Number,default: 0},
+
+  },
+  { timestamps: true }
+)
 const userModel=mongoose.models.user|| mongoose.model('user',UserSchema);
 export default userModel;
