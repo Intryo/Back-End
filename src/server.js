@@ -4,6 +4,7 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import connectdb from "./config/mongodb.js";
 import authRoute from "./routes/auth.routes.js";
+import userRouter from "./routes/user.routes.js";
 connectdb();
 const app=express();
 const port= process.env.PORT ||  4000;
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({credentials:true}));
 app.use("/api/auth",authRoute);
+app.use('/api/user',userRouter)
 app.get("/",(req,res)=>{
     res.send("Welcome to Our Website ")
 })
