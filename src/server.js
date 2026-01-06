@@ -17,10 +17,10 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
+
 console.log("JWT_SECRET =", process.env.JWT_SECRET);
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({credentials:true}));
 app.use("/api/auth",authRoute);
 app.use('/api/user',userRouter)
 app.get("/",(req,res)=>{
