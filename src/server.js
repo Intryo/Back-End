@@ -8,7 +8,15 @@ import userRouter from "./routes/user.routes.js";
 connectdb();
 const app=express();
 const port= process.env.PORT ||  4000;
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000"
+];
 
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 console.log("JWT_SECRET =", process.env.JWT_SECRET);
 app.use(express.json());
 app.use(cookieParser());
