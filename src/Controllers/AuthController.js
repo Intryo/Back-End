@@ -97,7 +97,23 @@ If this wasn’t you, please reset your password immediately.
         });
 
 
-      return res.status(200).json({success:true,message:"Login Complete",userId: user._id});
+      return res.status(200).json({
+        success:true,
+        message:"Login Complete",
+        userId: user._id,
+        token:accessToken,
+         userData: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                bio: user.bio,
+                age: user.age,
+                gender: user.gender,
+                avatar: user.avatar,
+                isAccountVerified: user.isVerified,
+                joinedAt: user.createdAt,
+            }
+    });
     } catch (error) {
         return res.status(500).json({success:false,message:error.message})
     }
