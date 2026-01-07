@@ -47,6 +47,37 @@ Please do not share it with anyone.
    }
 
 }
+export const resendOtp=async(req,res)=>{
+    const {email}=req.body;
+    if(!email){
+        return res.status(400).json({success:false,message:"Email is Required"})
+    }
+    try {
+        const user=await userModel.findOne({email});
+        if(!user){
+             return res.status(404).json({success:false,message:"User Not Found"});
+        }
+        const otp=Math.floor(100000+Math.random()*900000);
+        user.verifyOtp=String(otp);
+        user.verifyOtpExpairy=Date.now()+10*60*1000;    
+        await user.save();
+        const mailOption={
+            from: process.env.SENDER_EMAIL,
+            to:email,
+            subject:"Resend Verification Otp 🔐",
+            text: `Hey User Your Resend Verification otp is ${otp} This OTP is valid for 10 minutes.
+Please do not share it with anyone.
+
+— Team Intryo`
+        }
+        sendEmail(mailOption).catch(err=>{
+            console.log("otp mailed failed",err.message);
+        })
+        return res.status(201).json({success:true,message:"otp send to mail",next:"verify the otp"})
+    } catch (error) {
+        return res.status(500).json({success:false,message:error.message});
+    }
+}
 
 export const login=async(req,res)=>{
     try {
