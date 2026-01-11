@@ -1,9 +1,12 @@
 import express from "express"
+
 import {register,login,logout, verifyMail, isAuthenticated, sendResetOtp, resetpass, refreshTokenController, resetpassOtp} from "../Controllers/AuthController.js";
+
 import userauth from "../middleware/userAuth.js";
 
 const authRoute=express.Router();
 authRoute.post("/register", register);
+authRoute.post("/resend-otp",resendOtp);
 authRoute.post("/verify-account", verifyMail);
 authRoute.post("/login", login);
 authRoute.post("/logout", logout);
