@@ -8,6 +8,7 @@ const UserSchema=new mongoose.Schema({
     isVerified:{type:Boolean,default:false},
     resendOtp:{type:String,default:''},
     resendOtpExpairy:{type:Number,default:0},
+    passwordchangeotpVerify:{type:Boolean,default:false},
     username: {type: String,unique: true,sparse: true,},
     bio: {type: String,maxlength: 160,default: ""},
     age: { type: Number,min: 13},
