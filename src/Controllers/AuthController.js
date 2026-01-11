@@ -225,16 +225,16 @@ export const sendResetOtp=async(req,res)=>{
         subject: "Password Reset OTP",
         text: `Your Reset Otp is ${otp}`
         }
-        await transporter.sendMail(mailOption);
+        sendEmail(mailOption);
         return res.status(200).json({success:true,message:"OTP Send to your email"})
     } catch (error) {
          return res.status(500).json({success:false,message:error.message})
     }
 }
 
-export const resetpass=async(req,res)=>{
-    const {email,otp,newpassword}=req.body;
-    if(!email || !otp || !newpassword){
+export const resetpassOtp=async(req,res)=>{
+    const {email,otp}=req.body;
+    if(!otp){
         return res.status(400).json({success:false,message:"Missing Details "})
     }
     try {
@@ -248,12 +248,31 @@ export const resetpass=async(req,res)=>{
         if(user.resendOtpExpairy<Date.now()){
             return res.status(400).json({success:false,message:"Otp Expire"})
         }
-        const hashedPassword=await bcrypt.hash(newpassword,10);
-        user.password=hashedPassword;
+
         user.resendOtp="";
         user.resendOtppExpairy=0;
+        user.passwordchangeotpVerify=true;
         await user.save();
-        return res.status(200).json({success:true,message:"Password Reset succesfully"});
+        return res.status(200).json({success:true,message:"Otp Verify Succesfully"});
+    } catch (error) {
+        return res.status(500).json({success:false,message:error.message})
+    }
+}
+export const resetpass=async(req,res)=>{
+    const {email,newpassword}=req.body;
+    if(!newpassword){
+        return res.status(404).json({success:false,message:"Missing Details"});
+    }
+    try {
+        const user=await userModel.findOne({email});
+        if(user.passwordchangeotpVerify!==true){
+            return res.status(404).json({success:false,message:"Otp is Not Verified"});
+        }
+        const hashpassword=await bcrypt.hash(newpassword,10);
+        user.password=hashpassword;
+        await user.save();
+        return res.status(200).json({success:true,message:"Password Chnage Succesfully"});
+        
     } catch (error) {
         return res.status(500).json({success:false,message:error.message})
     }
