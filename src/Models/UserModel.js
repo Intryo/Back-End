@@ -11,9 +11,8 @@ const UserSchema=new mongoose.Schema({
     passwordchangeotpVerify:{type:Boolean,default:false},
     username: {type: String,unique: true,sparse: true,},
     bio: {type: String,maxlength: 160,default: ""},
-    age: { type: Number,min: 13},
     gender: {type: String,enum: ["male", "female", "other"]},
-    avatar: {type: String,default: "" },
+    profilepicture: {type: String,default: "" },
     friendsCount: {type: Number,default: 0},
 
   },
