@@ -2,6 +2,8 @@ import userModel from "../Models/UserModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../config/brevo.js";
+import getdataUri from "../config/DataURI.js";
+import cloudinary from "../config/cloudinary.js";
 
 export const register=async(req,res)=>{
     const {name,email,password}=req.body;
@@ -301,3 +303,49 @@ export const refreshTokenController = async (req, res) => {
     return res.status(403).json({ success: false, message: "Invalid refresh token" });
   }
 };
+
+export const editprofile=async(req,res)=>{
+    try {
+        const userId=req.user.id;
+        const{bio,gender,name,username}=req.body;
+        const profilepicture=req.file || (req.files && req.files[0]);
+        let cloudresponse;
+        if(profilepicture){
+            const fileuri=getdataUri(profilepicture);
+            cloudresponse=await cloudinary.uploader.upload(fileuri);
+        }
+        const user=await userModel.findById(userId);
+        if(!user){
+            return res.status(404).json({
+                success:false,
+                message:"User Not Found"
+            })
+        }
+        if(bio) user.bio=bio;
+        if(gender) user.gender=gender;
+        if(name) user.name=name;
+        if(username)user.username=username;
+        if(profilepicture && cloudresponse) user.profilepicture=cloudresponse.secure_url;
+        await user.save();
+        return res.status(200).json({
+            success:true,
+            message:"Profile Edit Succefully",
+            userData: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                bio: user.bio,
+                gender: user.gender,
+                profilepicture: user.profilepicture,
+                isAccountVerified: user.isVerified,
+                username:user.username
+            }
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
