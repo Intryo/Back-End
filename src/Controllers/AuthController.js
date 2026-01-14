@@ -140,9 +140,11 @@ If this wasn’t you, please reset your password immediately.
                 name: user.name,
                 email: user.email,
                 bio: user.bio,
-                age: user.age,
-                gender: user.gender,
-                avatar: user.avatar,
+                friendscount: user.friendscount,
+                fieldofintereset:user.fieldofintereset,
+                sociallinks:user.sociallinks,
+                fullfillmentpoint:user.fullfillmentpoint,
+                profilepicture:user.profilepicture,
                 isAccountVerified: user.isVerified,
                 joinedAt: user.createdAt,
             }
@@ -307,7 +309,7 @@ export const refreshTokenController = async (req, res) => {
 export const editprofile=async(req,res)=>{
     try {
         const userId=req.user.id;
-        const{bio,gender,name,username}=req.body;
+        const{bio,name,sociallinks,interest}=req.body;
         const profilepicture=req.file || (req.files && req.files[0]);
         let cloudresponse;
         if(profilepicture){
@@ -322,9 +324,9 @@ export const editprofile=async(req,res)=>{
             })
         }
         if(bio) user.bio=bio;
-        if(gender) user.gender=gender;
+        if(sociallinks) user.sociallinks=sociallinks;
         if(name) user.name=name;
-        if(username)user.username=username;
+        if(interest) user.fieldofinterest=interest;
         if(profilepicture && cloudresponse) user.profilepicture=cloudresponse.secure_url;
         await user.save();
         return res.status(200).json({
@@ -337,8 +339,10 @@ export const editprofile=async(req,res)=>{
                 bio: user.bio,
                 gender: user.gender,
                 profilepicture: user.profilepicture,
+                sociallinks:user.sociallinks,
+                fieldofintereset:user.fieldofintereset,
                 isAccountVerified: user.isVerified,
-                username:user.username
+                
             }
         })
 
