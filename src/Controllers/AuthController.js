@@ -308,7 +308,7 @@ export const refreshTokenController = async (req, res) => {
 
 export const editprofile=async(req,res)=>{
     try {
-        const userId=req.user.id;
+        const {userId}=req.params;
         const{bio,name,sociallinks,interest}=req.body;
         const profilepicture=req.file || (req.files && req.files[0]);
         let cloudresponse;
