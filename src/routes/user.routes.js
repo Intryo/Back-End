@@ -5,6 +5,8 @@ import { editprofile } from "../Controllers/AuthController.js";
 import upload from "../middleware/multer.js";
 const userRouter=express.Router();
 userRouter.get("/data", userauth, getUserData);
+
 userRouter.get("/:userId",getUserById)
-userRouter.patch("/profile/edit",userauth,upload.single('profilepicture'),editprofile)
+userRouter.patch("/profile/edit/:userId",userauth,upload.single('profilepicture'),editprofile,getUserById)
+
 export default userRouter;
