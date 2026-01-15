@@ -330,7 +330,7 @@ export const editprofile = async (req, res) => {
             })
         }
         if (bio) user.bio = bio;
-        // Parse JSON strings from FormData to prevent double-stringification
+     
         if (sociallinks) {
             try {
                 user.sociallinks = typeof sociallinks === 'string' ? JSON.parse(sociallinks) : sociallinks;
@@ -341,9 +341,9 @@ export const editprofile = async (req, res) => {
         if (name) user.name = name;
         if (interest) {
             try {
-                user.fieldofinterest = typeof interest === 'string' ? JSON.parse(interest) : interest;
+                user.fieldofintereset = typeof interest === 'string' ? JSON.parse(interest) : interest;
             } catch (e) {
-                user.fieldofinterest = interest;
+                user.fieldofintereset = interest;
             }
         }
         if (profilepicture && cloudresponse) user.profilepicture = cloudresponse.secure_url;
