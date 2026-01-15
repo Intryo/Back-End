@@ -102,17 +102,21 @@ export const login = async (req, res) => {
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
         const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
-        res.cookie("token", accessToken, {
+
+        const isDevelopment = process.env.NODE_ENV === "development";
+        const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? "lax" : "none",
+        };
+
+        res.cookie("token", accessToken, {
+            ...cookieOptions,
             maxAge: 15 * 60 * 1000
         });
 
         res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            ...cookieOptions,
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         sendEmail({
@@ -155,10 +159,11 @@ If this wasn’t you, please reset your password immediately.
 }
 export const logout = async (req, res) => {
     try {
+        const isDevelopment = process.env.NODE_ENV === "development";
         const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax"
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? "lax" : "none"
         };
 
         res.clearCookie("token", cookieOptions);
@@ -292,14 +297,15 @@ export const refreshTokenController = async (req, res) => {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
+        const isDevelopment = process.env.NODE_ENV === "development";
         res.cookie("token", newAccessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? "lax" : "none",
             maxAge: 15 * 60 * 1000
         });
 
-        return res.status(200).json({ success: true });
+        return res.status(200).json({ success: true, accessToken: newAccessToken });
 
     } catch (error) {
         return res.status(403).json({ success: false, message: "Invalid refresh token" });
