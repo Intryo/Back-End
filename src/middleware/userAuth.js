@@ -49,8 +49,6 @@ const userauth = async (req, res, next) => {
     try {
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
       const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "15m" });
-
-    
       res.cookie("token", newAccessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
