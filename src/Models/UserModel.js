@@ -10,7 +10,7 @@ const UserSchema=new mongoose.Schema({
     resendOtpExpairy:{type:Number,default:0},
     passwordchangeotpVerify:{type:Boolean,default:false},
     username: {type: String,unique: true,sparse: true,},
-    bio: {type: String,maxlength: 160,default: ""},
+    bio: {type: String,maxlength: 500,default: ""},
     profilepicture: {type: String,default: "" },
     friendsCount: {type: Number,default: 0},
     posts:[{type:mongoose.Schema.Types.ObjectId, ref:'post'}],
