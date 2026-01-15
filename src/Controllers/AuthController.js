@@ -361,6 +361,7 @@ export const editprofile = async (req, res) => {
                 sociallinks: user.sociallinks,
                 fieldofintereset: user.fieldofintereset,
                 isAccountVerified: user.isVerified,
+                joindate: user.createdAt
 
             }
         })
