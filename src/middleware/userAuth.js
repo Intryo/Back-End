@@ -15,11 +15,11 @@ const userauth = async (req, res, next) => {
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
       const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
-      const isProduction = process.env.NODE_ENV === "production";
+      const isDevelopment = process.env.NODE_ENV === "development";
       res.cookie("token", newAccessToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        secure: !isDevelopment,
+        sameSite: isDevelopment ? "lax" : "none",
         maxAge: 15 * 60 * 1000
       });
 
