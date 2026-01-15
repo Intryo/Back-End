@@ -330,9 +330,22 @@ export const editprofile = async (req, res) => {
             })
         }
         if (bio) user.bio = bio;
-        if (sociallinks) user.sociallinks = sociallinks;
+        // Parse JSON strings from FormData to prevent double-stringification
+        if (sociallinks) {
+            try {
+                user.sociallinks = typeof sociallinks === 'string' ? JSON.parse(sociallinks) : sociallinks;
+            } catch (e) {
+                user.sociallinks = sociallinks;
+            }
+        }
         if (name) user.name = name;
-        if (interest) user.fieldofinterest = interest;
+        if (interest) {
+            try {
+                user.fieldofinterest = typeof interest === 'string' ? JSON.parse(interest) : interest;
+            } catch (e) {
+                user.fieldofinterest = interest;
+            }
+        }
         if (profilepicture && cloudresponse) user.profilepicture = cloudresponse.secure_url;
         await user.save();
         return res.status(200).json({
