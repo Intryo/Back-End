@@ -102,7 +102,7 @@ export const login = async (req, res) => {
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
         const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
-        // Dynamic cookie settings for cross-origin (Render backend + localhost frontend)
+
         const isProduction = process.env.NODE_ENV === "production";
         const cookieOptions = {
             httpOnly: true,
@@ -305,7 +305,7 @@ export const refreshTokenController = async (req, res) => {
             maxAge: 15 * 60 * 1000
         });
 
-        return res.status(200).json({ success: true });
+        return res.status(200).json({ success: true, accessToken: newAccessToken });
 
     } catch (error) {
         return res.status(403).json({ success: false, message: "Invalid refresh token" });
