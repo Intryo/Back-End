@@ -103,11 +103,11 @@ export const login = async (req, res) => {
         const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
 
-        const isProduction = process.env.NODE_ENV === "production";
+        const isDevelopment = process.env.NODE_ENV === "development";
         const cookieOptions = {
             httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "none" : "lax",
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? "lax" : "none",
         };
 
         res.cookie("token", accessToken, {
@@ -159,11 +159,11 @@ If this wasn’t you, please reset your password immediately.
 }
 export const logout = async (req, res) => {
     try {
-        const isProduction = process.env.NODE_ENV === "production";
+        const isDevelopment = process.env.NODE_ENV === "development";
         const cookieOptions = {
             httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "none" : "lax"
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? "lax" : "none"
         };
 
         res.clearCookie("token", cookieOptions);
@@ -297,11 +297,11 @@ export const refreshTokenController = async (req, res) => {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
-        const isProduction = process.env.NODE_ENV === "production";
+        const isDevelopment = process.env.NODE_ENV === "development";
         res.cookie("token", newAccessToken, {
             httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "none" : "lax",
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? "lax" : "none",
             maxAge: 15 * 60 * 1000
         });
 
