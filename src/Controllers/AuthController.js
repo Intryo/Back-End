@@ -102,17 +102,21 @@ export const login = async (req, res) => {
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
         const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
-        res.cookie("token", accessToken, {
+        // Dynamic cookie settings for cross-origin (Render backend + localhost frontend)
+        const isProduction = process.env.NODE_ENV === "production";
+        const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+        };
+
+        res.cookie("token", accessToken, {
+            ...cookieOptions,
             maxAge: 15 * 60 * 1000
         });
 
         res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            ...cookieOptions,
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         sendEmail({
@@ -155,10 +159,11 @@ If this wasn’t you, please reset your password immediately.
 }
 export const logout = async (req, res) => {
     try {
+        const isProduction = process.env.NODE_ENV === "production";
         const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax"
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax"
         };
 
         res.clearCookie("token", cookieOptions);
@@ -292,10 +297,11 @@ export const refreshTokenController = async (req, res) => {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
+        const isProduction = process.env.NODE_ENV === "production";
         res.cookie("token", newAccessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
             maxAge: 15 * 60 * 1000
         });
 
