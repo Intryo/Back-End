@@ -7,6 +7,6 @@ const userRouter=express.Router();
 userRouter.get("/data", userauth, getUserData);
 
 userRouter.get("/:userId",getUserById)
-userRouter.patch("/profile/edit/:userId",userauth,upload.single('profilepicture'),editprofile,getUserById)
+userRouter.patch("/profile/edit/:userId",userauth,upload.single('profilepicture'),editprofile)
 
 export default userRouter;

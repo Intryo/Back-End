@@ -5,6 +5,7 @@ import { sendEmail } from "../config/brevo.js";
 import getdataUri from "../config/DataURI.js";
 import cloudinary from "../config/cloudinary.js";
 
+
 export const register = async (req, res) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
@@ -145,7 +146,7 @@ If this wasn’t you, please reset your password immediately.
                 email: user.email,
                 bio: user.bio,
                 friendscount: user.friendscount,
-                fieldofintereset: user.fieldofintereset,
+                fieldOfInterest: user.fieldOfInterest,
                 sociallinks: user.sociallinks,
                 fullfillmentpoint: user.fullfillmentpoint,
                 profilepicture: user.profilepicture,
@@ -315,13 +316,15 @@ export const refreshTokenController = async (req, res) => {
 export const editprofile = async (req, res) => {
     try {
         const { userId } = req.params;
-        const { bio, name, sociallinks, interest } = req.body;
+        const { bio, name, sociallinks, fieldOfInterest } = req.body; // Changed 'interest' to 'fieldOfInterest'    
         const profilepicture = req.file || (req.files && req.files[0]);
+        
         let cloudresponse;
         if (profilepicture) {
             const fileuri = getdataUri(profilepicture);
             cloudresponse = await cloudinary.uploader.upload(fileuri);
         }
+        
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -329,44 +332,82 @@ export const editprofile = async (req, res) => {
                 message: "User Not Found"
             })
         }
+        
         if (bio) user.bio = bio;
-     
-        if (sociallinks) {
-            try {
-                user.sociallinks = typeof sociallinks === 'string' ? JSON.parse(sociallinks) : sociallinks;
-            } catch (e) {
-                user.sociallinks = sociallinks;
-            }
-        }
         if (name) user.name = name;
-        if (interest) {
-            try {
-                user.fieldofintereset = typeof interest === 'string' ? JSON.parse(interest) : interest;
-            } catch (e) {
-                user.fieldofintereset = interest;
+     
+        if(sociallinks){
+            let parsedlink = sociallinks;
+            if(typeof parsedlink === 'string'){
+               try {
+                 parsedlink = JSON.parse(parsedlink);
+               } catch (error) {
+                parsedlink = [];
+               }
             }
+            if(Array.isArray(parsedlink)){
+                parsedlink = parsedlink.flat();
+            }
+            parsedlink = parsedlink.map(String);
+            user.sociallinks = parsedlink;
         }
+        
+        if (fieldOfInterest !== undefined && fieldOfInterest !== null && fieldOfInterest !== '') {
+            let parsedInterest = fieldOfInterest;
+            if(typeof parsedInterest === 'string'){
+               try {
+                 parsedInterest = JSON.parse(parsedInterest);
+               } catch (error) {
+                parsedInterest = [parsedInterest];
+               }
+            }
+            if(Array.isArray(parsedInterest)){
+                parsedInterest = parsedInterest.flat();
+            }
+            parsedInterest = parsedInterest.map(String);
+            user.fieldOfInterest = parsedInterest;
+            console.log("Updated fieldOfInterest:", user.fieldOfInterest);
+        }
+        if (sociallinks !== undefined && sociallinks !== null && sociallinks !== '') {
+            let parsedlink = sociallinks;
+            if(typeof parsedlink === 'string'){
+               try {
+                 parsedlink = JSON.parse(parsedlink);
+               } catch (error) {
+                parsedlink = [parsedlink];
+               }
+            }
+            if(Array.isArray(parsedlink)){
+                parsedlink = parsedlink.flat();
+            }
+            parsedlink = parsedlink.map(String);
+            user.sociallinks = parsedlink;
+            console.log("Updated sociallinks:", user.sociallinks);
+        }
+        
         if (profilepicture && cloudresponse) user.profilepicture = cloudresponse.secure_url;
-        await user.save();
+        
+        const updatedUser = await user.save();
+        
         return res.status(200).json({
             success: true,
-            message: "Profile Edit Succefully",
+            message: "Profile Edit Successfully",
             userData: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                bio: user.bio,
-                gender: user.gender,
-                profilepicture: user.profilepicture,
-                sociallinks: user.sociallinks,
-                fieldofintereset: user.fieldofintereset,
-                isAccountVerified: user.isVerified,
-                joindate: user.createdAt
-
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                bio: updatedUser.bio,
+                gender: updatedUser.gender,
+                profilepicture: updatedUser.profilepicture,
+                sociallinks: updatedUser.sociallinks,
+                fieldOfInterest: updatedUser.fieldOfInterest,
+                isAccountVerified: updatedUser.isVerified,
+                joindate: updatedUser.createdAt
             }
         })
 
     } catch (error) {
+        console.error("Profile edit error:", error);
         return res.status(500).json({
             success: false,
             message: error.message

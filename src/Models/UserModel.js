@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'post' }],
   bookmark: [{ type: mongoose.Schema.Types.ObjectId, ref: 'post' }],
   sociallinks: { type: [String], default: [] },
-  fieldofintereset: { type: [String], default: [] },
+  fieldOfInterest: { type: [String], default: [] },
   fullfillmentpoint: { type: Number, default: 50 }
 },
   { timestamps: true }
